@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--给实体类添加类名-->
+    <typeAliases>
+        <package name="com.ing.pojo"/>
+    </typeAliases>
+    <mappers>
+        <!--绑定mapper文件-->
+        <mapper class="com.ing.dao.BookMapper"/>
+    </mappers>
+</configuration>
