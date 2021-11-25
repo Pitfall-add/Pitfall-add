@@ -92,6 +92,12 @@
             <version>2.13.0</version>
         </dependency>
 
+        <!--分页插件，pageHelper-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+            <version>5.1.2</version>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>

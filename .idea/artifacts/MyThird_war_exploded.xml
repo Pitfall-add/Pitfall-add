@@ -31,6 +31,10 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.0" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.0" />
           <element id="library" level="project" name="Maven: org.projectlombok:lombok:1.18.4" />
+          <element id="library" level="project" name="Maven: com.github.jsqlparser:jsqlparser:1.0" />
+          <element id="library" level="project" name="Maven: com.github.pagehelper:pagehelper:5.1.2" />
+          <element id="library" level="project" name="Maven: javax.servlet.jsp:jsp-api:2.2" />
+          <element id="library" level="project" name="Maven: javax.servlet:servlet-api:2.5" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="MyThird/web/Web" />

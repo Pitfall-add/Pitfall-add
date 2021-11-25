@@ -6,7 +6,7 @@
 
     <!--查询全部书籍-->
     <select id="queryAllBooks" resultType="com.ing.pojo.Books">
-        select * from books
+        select * from books order by bookID
     </select>
     <!--删除数据-->
     <delete id="deleteBook" parameterType="int">

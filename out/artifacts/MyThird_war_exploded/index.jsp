@@ -21,40 +21,121 @@
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
         $(function () {
+            var curPage;
+            var totalPage;
             //console.log("你好Ajax");
+            to_page(1);//显示首页内容
             //利用ajax实现
-                function shuaxin() {
+                function to_page(pn) {
                     $.ajax({
                         url:"${pageContext.request.contextPath}/books/allBooks",
+                        data:"pn="+pn,
                         type:"GET",
                         success:function (result) {
                             console.log(result);
-                            var html="";
-                            for(var i=0;i<result.length;i++)
-                            {
-                                html+="<tr>"+
-                                    "<td>"+"<input type='checkbox' class='check_item'>"+"</td>"+
-                                    "<td>"+result[i].bookID+"</td>"+
-                                    "<td>"+result[i].bookName+"</td>"+
-                                    "<td>"+result[i].bookCounts+"</td>"+
-                                    "<td>"+result[i].detail+"</td>"+
-                                    "<td>"+
-                                    "<button class='btn btn-primary btn-sm' id='update_btn' value='"+result[i].bookID+"'>编辑"+
-                                    "<span class='glyphicon glyphicon-pencil' aria-hidden='true'>"+"</span>"+
-                                    "</button>"+
-                                    "&nbsp;<button class='btn btn-danger btn-sm' id='delete_btn' value="+result[i].bookID+">删除"+
-                                    "<span class='glyphicon glyphicon-trash' aria-hidden='true'>"+"</span>"+
-                                    "</button>"+
-                                    "</td>"+
-                                    "</tr>";
-
-
-                            }
-                            $("#content").html(html);
+                            curPage=result.pageNum;//当删除或者修改数据的定位到当前位置，表示当前页
+                            totalPage=result.pages;//最后一页，当新增数据后，跳转到最后一页
+                            page_table_info(result);//调用打印数据的函数
+                            page_info(result);//调用分页信息函数
+                            navs_info(result);//调用分页条信息函数
                         }
                     });
                 }
-                shuaxin();
+            //显示table中信息
+            function page_table_info(result) {
+                $("#content").empty();//清空之前有的数据，显示新请求的数据
+                var books=result.list;
+                $.each(books,function(index,item){
+                    var cheBtn=$("<input type='checkbox'/>");
+                    var bookId=$("<td></td>").append(item.bookID);
+                    var bookName=$("<td></td>").append(item.bookName);
+                    var bookCounts=$("<td></td>").append(item.bookCounts);
+                    var detail=$("<td></td>").append(item.detail);
+                    var ediBtn=$("<button id='update_btn'></button>").addClass("btn btn-primary btn-sm").attr("value",item.bookID)
+                        .append("<span></span>").addClass("glyphicon glyphicon-pencil").append("编辑");
+                    var delBtn=$("<button id='delete_btn'></button>").addClass("btn btn-danger btn-sm").attr("value",item.bookID)
+                        .append("<span></span>").addClass("glyphicon glyphicon-trash").append("删除");
+                    var btnTab=$("<td></td>").append(delBtn).append(" ").append(ediBtn);
+                    $("<tr></tr>").append(cheBtn)
+                    .append(bookId)
+                    .append(bookName)
+                    .append(bookCounts)
+                    .append(detail).append(btnTab).appendTo("#content");
+                });
+            }
+
+            //显示分页信息
+            function page_info(result) {
+                $("#page_info_area").empty();//清空数据
+                $("#page_info_area").append("当前"+result.pageNum+"页,总"
+                    +result.pages
+                    +"页,总"
+                    +result.total
+                    +"条记录");
+            }
+            //显示分页条数据
+            function navs_info(result) {
+                $("#page_nav_area").empty();//清空数据
+                var uls=$("<ul></ul>").addClass("pagination");
+                //构建元素
+                var firstPageLi=$("<li></li>").append($("<a>首页</a>")).attr("href","#");
+                var prePageLi=$("<li></li>").append($("<a>&laquo;</a>"));
+                //判断是否有前一页，如果没有前一页就不能点击前一页或首页按钮 hasPreviousPage为false表示没有前一页了
+                if(result.hasPreviousPage==false)
+                {
+                    firstPageLi.addClass("disabled");
+                    prePageLi.addClass("disabled");
+                }else{
+                    //为元素添加点击翻页事件
+                    firstPageLi.click(function () {
+                        to_page(1);
+                    });
+                    prePageLi.click(function () {
+                        to_page(result.pageNum-1);//当前页减一就是上一页的数据
+                    });
+                }
+                //构建元素
+                var nextPageLi=$("<li></li>").append($("<a>&raquo;</a>"));
+                var lastPageLi=$("<li></li>").append($("<a>末页</a>")).attr("href","#");
+                //判断是否有后一页，如果没有后一页就不能点击后一页或未页按钮 hasNextPage为false表示没有后一页了
+                if(result.hasNextPage==false)
+                {
+                    nextPageLi.addClass("disabled");
+                    lastPageLi.addClass("disabled");
+                }else {
+                    //为元素添加点击翻页事件
+                    lastPageLi.click(function () {
+                        to_page(result.pages);//pages表示最后一页
+                    });
+                    nextPageLi.click(function () {
+                        to_page(result.pageNum+1);//当前页加一就是下一页的数据
+                    });
+                }
+                //在ul中先添加首页和前一页的标签
+                uls.append(firstPageLi).append(prePageLi);
+                //分页条的数字信息1 2 3...
+                $.each(result.navigatepageNums,function (index,item) {
+                    var numLis=$("<li></li>").append($("<a></a>").append(item));
+
+                    //当前页
+                    if(result.pageNum==item)
+                    {
+                        numLis.addClass("active");
+                    }
+                    //点击事件，当点击分页条数据中任何按钮时，去到多对应的页
+                    //在点击之前我们清空之前的请求，不然会有数据重叠
+                    numLis.click(function () {
+                        to_page(item);
+                    });
+                    //在ul中添加显示分页条数字
+                    uls.append(numLis);
+                });
+                //在ul中添加下一页和尾页
+                uls.append(nextPageLi).append(lastPageLi);
+                //把nav添加到对用的盒子里;
+                $("#page_nav_area").append(uls);
+            }
+
             //点击新增按钮，弹出模态框
             $("#book_add_modal_btn").click(function(){
                 $("#bookAddModal").modal({
@@ -71,12 +152,10 @@
                     type: "POST",
                     data:$("#bookAddModal form").serialize(),
                     success:function (result) {
-                        // alert(result);
-                        //关闭模态框
-                        //1.保存书籍成功
                         $("#bookAddModal").modal('hide');
-                        shuaxin();
-
+                        //清除数据，当我们添加数据后不刷新再次点击添加会有之前添加的数据保留，所以我们需要清除一下
+                        $("#bookAddModal form")[0].reset();
+                        to_page(totalPage);
                     }
                 });
             });
@@ -112,11 +191,10 @@
                     url:"${pageContext.request.contextPath}/books/updateBook",
                     type:"POST",
                     data:$("#bookUpdateModal form").serialize()+"&_method=PUT",
-                    success:function (result) {
-                        //alert(result);
+                    success:function () {
                         //点击更新之后关闭模态框
                         $("#bookUpdateModal").modal('hide');
-                        shuaxin();//关闭之后再去请求所有数据
+                        to_page(curPage);//去到当前页，也就是我们点击修改的地方
                     }
 
                 });
@@ -132,7 +210,7 @@
                         type:"DELETE",
                         success:function (result) {
                             // alert(result);
-                            shuaxin();//删除数据之后重新发送ajax请求进行查询数据
+                            to_page(curPage);//去到我们点击删除的那个页面
                         }
                     });
                 }
@@ -178,7 +256,7 @@
                            type:"DELETE",
                            success:function (result) {
                                //alert(result);
-                               shuaxin();
+                               // shuaxin();
                            }
 
                        });
@@ -291,7 +369,7 @@
     </div>
     <!-- 显示表格信息 -->
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <table class="table table-hover">
                 <thead>
                 <tr>
@@ -309,6 +387,15 @@
 
                 </tbody>
             </table>
+        </div>
+    </div>
+    <%--显示分页信息--%>
+    <div class="row">
+        <%--分页文字信息--%>
+        <div class="col-md-7" id="page_info_area"></div>
+        <%--分页条信息--%>
+        <div class="col-md-5" >
+            <nav aria-label="Page navigation" id="page_nav_area"></nav>
         </div>
     </div>
 </div>

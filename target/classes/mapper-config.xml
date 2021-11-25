@@ -7,6 +7,15 @@
     <typeAliases>
         <package name="com.ing.pojo"/>
     </typeAliases>
+
+    <plugins>
+        <!-- com.github.pagehelper为PageHelper类所在包名 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!--分页合理化，当在第一页时，再点击上一页就不会去到0页或-1页了 相当于<=1-->
+            <property name="reasonable" value="true"/>
+        </plugin>
+    </plugins>
+
     <mappers>
         <!--绑定mapper文件-->
         <mapper class="com.ing.dao.BookMapper"/>

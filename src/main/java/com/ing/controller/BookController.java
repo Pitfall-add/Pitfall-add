@@ -1,14 +1,13 @@
 package com.ing.controller;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.ing.pojo.Books;
 import com.ing.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,10 +28,14 @@ public class BookController {
 
     @RequestMapping("/allBooks")
     @ResponseBody
-    public List<Books> queryAllBooks()
+    public PageInfo queryAllBooks(@RequestParam(value = "pn",defaultValue = "1")int pn)
     {
+        PageHelper.startPage(pn,5);//表示一页有五条数据
+        //startPage后面的紧跟的查询就是分页查询
         List<Books> list=bookService.queryAllBooks();
-        return list;
+        //封装了详细的分页信息，包括我们查询出来的数据，传入显示页数
+        PageInfo pageInfo=new PageInfo(list);
+        return pageInfo;
     }
 
     //保存员工数据
